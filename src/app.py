@@ -83,7 +83,7 @@ def _exigir_json_em_alteracoes():
     if request.method not in METODOS_ALTERANTES or request.is_json:
         return None
     if not _metodo_aceito_pelo_caminho():
-        return None  # deixa o Werkzeug responder 405 (com header Allow)
+        return None
     raise ErroDeNegocio(
         "content_type",
         "Use 'Content-Type: application/json' nesta requisição",
@@ -103,10 +103,11 @@ def _erro_http(erro: HTTPException):
     codigo, mensagem = ERROS_HTTP.get(erro.code or 500, ("erro", "Erro na requisição"))
     resposta = jsonify({"erro": {"codigo": codigo, "mensagem": mensagem}})
     resposta.status_code = erro.code or 500
-    # 405 precisa dizer quais métodos existem (RFC 9110)
+
     for cabecalho in erro.get_headers():
         if cabecalho[0].lower() == "allow":
             resposta.headers["Allow"] = cabecalho[1]
+
     return resposta
 
 
@@ -114,7 +115,12 @@ def _erro_http(erro: HTTPException):
 def _erro_interno(erro: Exception):
     db.session.rollback()
     app.logger.exception("Erro não tratado: %s", erro)
-    return jsonify({"erro": {"codigo": "erro_interno", "mensagem": "Erro interno do servidor"}}), 500
+    return jsonify({
+        "erro": {
+            "codigo": "erro_interno",
+            "mensagem": "Erro interno do servidor"
+        }
+    }), 500
 
 
 app.register_blueprint(api)

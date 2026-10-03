@@ -2,6 +2,9 @@ venv/
 __pycache__/
 *.db
 .env
+<<<<<<< HEAD
 .pytest_cache/
 *.py[cod]
 .venv/
+=======
+>>>>>>> origin/main

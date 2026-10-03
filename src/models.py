@@ -1,4 +1,3 @@
-"""Tabelas do domínio LabFlow e suas serializações básicas."""
 
 from __future__ import annotations
 

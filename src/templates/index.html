@@ -1,182 +1,346 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f8f7fc">
-  <title>Minhas tarefas · LabFlow</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-  <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
-  <script src="{{ url_for('static', filename='js/tarefas.js') }}" defer></script>
-</head>
-<body class="dashboard-page">
-  <div class="app-shell">
-    <aside class="sidebar" id="sidebar">
-      <a class="brand brand-dark" href="/tarefas" aria-label="LabFlow, minhas tarefas">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none"><path d="m6 12 4 4 8-9" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </span>
-        <span>LabFlow</span>
-      </a>
-      <p class="sidebar-label">SEU ESPAÇO</p>
-      <nav class="side-nav" aria-label="Navegação principal">
-        <a class="nav-link is-active" href="/tarefas" aria-current="page">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="m8 12 2.5 2.5L16 9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Minhas tarefas
-        </a>
-      </nav>
-      <div class="sidebar-spacer"></div>
-      <div class="sidebar-tip">
-        <span class="tip-icon" aria-hidden="true">✦</span>
-        <p><strong>Um passo de cada vez.</strong><span>Pequenos avanços também contam.</span></p>
-      </div>
-      <div class="account-card">
-        <span class="avatar" id="user-avatar" aria-hidden="true">··</span>
-        <span class="account-details"><strong id="user-name">Carregando...</strong><small id="user-email"></small></span>
-        <button class="icon-button account-menu" id="logout-button" type="button" aria-label="Sair da conta" title="Sair da conta">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3m9-9h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-    </aside>
 
-    <main class="main-area">
-      <header class="topbar">
-        <button class="icon-button mobile-menu" id="mobile-menu-button" type="button" aria-label="Abrir navegação" aria-expanded="false">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        </button>
-        <label class="search-box" for="task-search">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.7"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-          <input id="task-search" type="search" placeholder="Buscar por tarefa ou descrição..." autocomplete="off">
-          <span class="search-shortcut" aria-hidden="true">⌘ K</span>
-        </label>
-        <div class="topbar-actions">
-          <button class="icon-button refresh-button" id="refresh-button" type="button" aria-label="Atualizar tarefas" title="Atualizar tarefas">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.8-3L3 11m0-5v5h5m-4 2a8 8 0 0 0 14.8 3L21 13m0 5v-5h-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <span class="topbar-divider"></span>
-          <button class="button button-primary new-task-button" id="new-task-button" type="button">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            Nova tarefa
-          </button>
-        </div>
-      </header>
+<head> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1"> <meta name="theme-color" content="#f8f7fc"> <title>Minhas tarefas · LabFlow</title> <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}"> <script src="{{ url_for('static', filename='js/api.js') }}" defer></script> <script src="{{ url_for('static', filename='js/tarefas.js') }}" defer></script> </head>
 
-      <section class="dashboard-content">
-        <div class="page-heading">
-          <div>
-            <p class="eyebrow">SEU ESPAÇO, SEU RITMO</p>
-            <h1>Minhas tarefas</h1>
-            <p class="page-subtitle">Organize suas prioridades e acompanhe cada conquista.</p>
-          </div>
-          <p class="today-label" id="today-label"></p>
-        </div>
+<body class="dashboard-page"> <div class="app-shell">
 
-        <section class="welcome-card" aria-label="Resumo da rotina">
-          <div class="welcome-copy">
-            <span class="welcome-sparkle" aria-hidden="true">✦</span>
-            <p class="eyebrow eyebrow-light">OLÁ, <span id="welcome-name">VOCÊ</span>!</p>
-            <h2>Vamos tornar hoje mais leve?</h2>
-            <p>Um pequeno passo já é um ótimo começo. Escolha o que importa agora.</p>
-          </div>
-          <div class="welcome-art" aria-hidden="true">
-            <div class="art-orbit orbit-one"></div>
-            <div class="art-orbit orbit-two"></div>
-            <div class="art-card">
-              <span class="art-card-check">✓</span>
-              <span><strong>Um passo de cada vez</strong><small>Seu progresso está acontecendo</small></span>
-            </div>
-            <span class="art-star star-one">✦</span>
-            <span class="art-star star-two">✧</span>
-          </div>
-        </section>
+<aside class="sidebar" id="sidebar">
+  <a class="brand brand-dark" href="/tarefas" aria-label="LabFlow, minhas tarefas">
+    <span class="brand-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="m6 12 4 4 8-9" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <span>LabFlow</span>
+  </a>
 
-        <section class="stats-grid" aria-label="Resumo das tarefas">
-          <article class="stat-card">
-            <div class="stat-heading"><span>Pendentes</span><span class="stat-icon stat-icon-purple"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span></div>
-            <strong class="stat-value" id="count-pending">—</strong>
-            <span class="stat-caption">para começar</span>
-          </article>
-          <article class="stat-card">
-            <div class="stat-heading"><span>Em andamento</span><span class="stat-icon stat-icon-blue"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 17.5V20h2.5L18 8.5 15.5 6 4 17.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m14.5 7 2.5 2.5M4 4h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span></div>
-            <strong class="stat-value" id="count-progress">—</strong>
-            <span class="stat-caption">em movimento</span>
-          </article>
-          <article class="stat-card">
-            <div class="stat-heading"><span>Concluídas</span><span class="stat-icon stat-icon-green"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.7"/><path d="m8 12 2.5 2.5L16 9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
-            <strong class="stat-value" id="count-done">—</strong>
-            <span class="stat-caption">conquistas suas</span>
-          </article>
-        </section>
+  <p class="sidebar-label">SEU ESPAÇO</p>
 
-        <section class="task-section" aria-labelledby="task-section-title">
-          <div class="task-section-heading">
-            <div>
-              <h2 id="task-section-title">Sua lista</h2>
-              <p id="task-result-count">Carregando tarefas...</p>
-            </div>
-            <label class="filter-control">
-              <span class="sr-only">Filtrar tarefas por status</span>
-              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16M7 12h10m-7 6h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-              <select id="status-filter">
-                <option value="todas">Todas</option>
-                <option value="a_fazer">Pendentes</option>
-                <option value="em_andamento">Em andamento</option>
-                <option value="concluida">Concluídas</option>
-                <option value="atrasada">Atrasadas</option>
-              </select>
-            </label>
-          </div>
-          <div id="task-list" class="task-list" aria-live="polite" aria-busy="true"></div>
-          <div class="pagination" id="pagination" hidden>
-            <span id="pagination-summary"></span>
-            <div class="pagination-controls">
-              <button class="icon-button" id="previous-page" type="button" aria-label="Página anterior">‹</button>
-              <span id="page-number"></span>
-              <button class="icon-button" id="next-page" type="button" aria-label="Próxima página">›</button>
-            </div>
-          </div>
-        </section>
-      </section>
-    </main>
+  <nav class="side-nav" aria-label="Navegação principal">
+    <a class="nav-link is-active" href="/tarefas" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/>
+        <path d="m8 12 2.5 2.5L16 9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Minhas tarefas
+    </a>
+  </nav>
+
+  <div class="sidebar-spacer"></div>
+
+  <div class="sidebar-tip">
+    <span class="tip-icon" aria-hidden="true">✦</span>
+    <p>
+      <strong>Um passo de cada vez.</strong>
+      <span>Pequenos avanços também contam.</span>
+    </p>
   </div>
 
-  <dialog class="task-dialog" id="task-dialog" aria-labelledby="dialog-title">
-    <form class="task-form" id="task-form" novalidate>
-      <header class="dialog-header">
-        <div><h2 id="dialog-title">Nova tarefa</h2><p>Um bom plano começa com um próximo passo.</p></div>
-        <button class="icon-button dialog-close" id="close-dialog-button" type="button" aria-label="Fechar formulário">×</button>
-      </header>
-      <div class="dialog-body">
-        <input id="task-id" type="hidden">
-        <div class="field">
-          <label for="task-title">Título <span class="required-mark">*</span></label>
-          <input class="text-input" id="task-title" name="titulo" type="text" maxlength="150" placeholder="Ex.: Planejar a semana" required>
-          <small class="field-error" data-error-for="titulo"></small>
-        </div>
-        <div class="field">
-          <label for="task-description">Descrição <span class="optional-mark">Opcional</span></label>
-          <textarea class="text-input textarea-input" id="task-description" name="descricao" maxlength="4000" placeholder="Adicione alguns detalhes para ajudar você a começar..."></textarea>
-          <small class="field-error" data-error-for="descricao"></small>
-        </div>
-        <div class="field">
-          <label for="task-deadline">Prazo <span class="optional-mark">Opcional</span></label>
-          <div class="input-wrap deadline-wrap">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3.5" y="5" width="17" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M7 3v4m10-4v4M4 9h16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-            <input id="task-deadline" name="prazo" type="datetime-local">
-          </div>
-          <small class="field-error" data-error-for="prazo"></small>
-        </div>
-        <p class="form-message" id="task-form-message" role="alert" aria-live="polite"></p>
+  <div class="account-card">
+    <span class="avatar" id="user-avatar" aria-hidden="true">··</span>
+    <span class="account-details">
+      <strong id="user-name">Carregando...</strong>
+      <small id="user-email"></small>
+    </span>
+
+    <button class="icon-button account-menu" id="logout-button" type="button"
+            aria-label="Sair da conta" title="Sair da conta">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M10 17l5-5-5-5m5 5H3m9-9h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"
+              stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</aside>
+
+<main class="main-area">
+  <header class="topbar">
+
+    <button class="icon-button mobile-menu" id="mobile-menu-button" type="button"
+            aria-label="Abrir navegação" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h16"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <label class="search-box" for="task-search">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="10.8" cy="10.8" r="6.8"
+                stroke="currentColor" stroke-width="1.7"/>
+        <path d="m16 16 4.5 4.5"
+              stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+
+      <input id="task-search" type="search"
+             placeholder="Buscar por tarefa ou descrição..."
+             autocomplete="off">
+
+      <span class="search-shortcut" aria-hidden="true">⌘ K</span>
+    </label>
+
+    <div class="topbar-actions">
+      <button class="icon-button refresh-button" id="refresh-button" type="button"
+              aria-label="Atualizar tarefas" title="Atualizar tarefas">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M20 11a8 8 0 0 0-14.8-3L3 11m0-5v5h5m-4 2a8 8 0 0 0 14.8 3L21 13m0 5v-5h-5"
+                stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <span class="topbar-divider"></span>
+
+      <button class="button button-primary new-task-button" id="new-task-button" type="button">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 5v14m-7-7h14"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Nova tarefa
+      </button>
+    </div>
+  </header>
+
+  <section class="dashboard-content">
+
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">SEU ESPAÇO, SEU RITMO</p>
+        <h1>Minhas tarefas</h1>
+        <p class="page-subtitle">
+          Organize suas prioridades e acompanhe cada conquista.
+        </p>
       </div>
-      <footer class="dialog-footer">
-        <button class="button button-secondary" id="cancel-dialog-button" type="button">Cancelar</button>
-        <button class="button button-primary" id="save-task-button" type="submit">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12 4 4L19 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Salvar tarefa</span>
-        </button>
-      </footer>
-    </form>
-  </dialog>
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-</body>
-</html>
+
+      <p class="today-label" id="today-label"></p>
+    </div>
+
+    <section class="welcome-card" aria-label="Resumo da rotina">
+      <div class="welcome-copy">
+        <span class="welcome-sparkle" aria-hidden="true">✦</span>
+        <p class="eyebrow eyebrow-light">
+          OLÁ, <span id="welcome-name">VOCÊ</span>!
+        </p>
+        <h2>Vamos tornar hoje mais leve?</h2>
+        <p>
+          Um pequeno passo já é um ótimo começo. Escolha o que importa agora.
+        </p>
+      </div>
+
+      <div class="welcome-art" aria-hidden="true">
+        <div class="art-orbit orbit-one"></div>
+        <div class="art-orbit orbit-two"></div>
+
+        <div class="art-card">
+          <span class="art-card-check">✓</span>
+          <span>
+            <strong>Um passo de cada vez</strong>
+            <small>Seu progresso está acontecendo</small>
+          </span>
+        </div>
+
+        <span class="art-star star-one">✦</span>
+        <span class="art-star star-two">✧</span>
+      </div>
+    </section>
+
+    <section class="stats-grid" aria-label="Resumo das tarefas">
+
+      <article class="stat-card">
+        <div class="stat-heading">
+          <span>Pendentes</span>
+          <span class="stat-icon stat-icon-purple">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8.5"
+                      stroke="currentColor" stroke-width="1.7"/>
+              <path d="M12 7v5l3 2"
+                    stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </div>
+
+        <strong class="stat-value" id="count-pending">—</strong>
+        <span class="stat-caption">para começar</span>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-heading">
+          <span>Em andamento</span>
+          <span class="stat-icon stat-icon-blue">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 17.5V20h2.5L18 8.5 15.5 6 4 17.5Z"
+                    stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+              <path d="m14.5 7 2.5 2.5M4 4h6"
+                    stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </div>
+
+        <strong class="stat-value" id="count-progress">—</strong>
+        <span class="stat-caption">em movimento</span>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-heading">
+          <span>Concluídas</span>
+          <span class="stat-icon stat-icon-green">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="8.5"
+                      stroke="currentColor" stroke-width="1.7"/>
+              <path d="m8 12 2.5 2.5L16 9"
+                    stroke="currentColor" stroke-width="1.7"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </div>
+
+        <strong class="stat-value" id="count-done">—</strong>
+        <span class="stat-caption">conquistas suas</span>
+      </article>
+
+    </section>
+
+    <section class="task-section" aria-labelledby="task-section-title">
+
+      <div class="task-section-heading">
+        <div>
+          <h2 id="task-section-title">Sua lista</h2>
+          <p id="task-result-count">Carregando tarefas...</p>
+        </div>
+
+        <label class="filter-control">
+          <span class="sr-only">Filtrar tarefas por status</span>
+
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 6h16M7 12h10m-7 6h4"
+                  stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+
+          <select id="status-filter">
+            <option value="todas">Todas</option>
+            <option value="a_fazer">Pendentes</option>
+            <option value="em_andamento">Em andamento</option>
+            <option value="concluida">Concluídas</option>
+            <option value="atrasada">Atrasadas</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="task-list" class="task-list" aria-live="polite" aria-busy="true"></div>
+
+      <div class="pagination" id="pagination" hidden>
+        <span id="pagination-summary"></span>
+
+        <div class="pagination-controls">
+          <button class="icon-button" id="previous-page" type="button"
+                  aria-label="Página anterior">‹</button>
+
+          <span id="page-number"></span>
+
+          <button class="icon-button" id="next-page" type="button"
+                  aria-label="Próxima página">›</button>
+        </div>
+      </div>
+
+    </section>
+
+  </section>
+</main>
+
+</div>
+
+<dialog class="task-dialog" id="task-dialog" aria-labelledby="dialog-title">
+
+<form class="task-form" id="task-form" novalidate>
+
+  <header class="dialog-header">
+    <div>
+      <h2 id="dialog-title">Nova tarefa</h2>
+      <p>Um bom plano começa com um próximo passo.</p>
+    </div>
+
+    <button class="icon-button dialog-close" id="close-dialog-button"
+            type="button" aria-label="Fechar formulário">×</button>
+  </header>
+
+  <div class="dialog-body">
+
+    <input id="task-id" type="hidden">
+
+    <div class="field">
+      <label for="task-title">
+        Título <span class="required-mark">*</span>
+      </label>
+
+      <input class="text-input" id="task-title" name="titulo"
+             type="text" maxlength="150"
+             placeholder="Ex.: Planejar a semana" required>
+
+      <small class="field-error" data-error-for="titulo"></small>
+    </div>
+
+    <div class="field">
+      <label for="task-description">
+        Descrição <span class="optional-mark">Opcional</span>
+      </label>
+
+      <textarea class="text-input textarea-input"
+                id="task-description"
+                name="descricao"
+                maxlength="4000"
+                placeholder="Adicione alguns detalhes para ajudar você a começar..."></textarea>
+
+      <small class="field-error" data-error-for="descricao"></small>
+    </div>
+
+    <div class="field">
+      <label for="task-deadline">
+        Prazo <span class="optional-mark">Opcional</span>
+      </label>
+
+      <div class="input-wrap deadline-wrap">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="3.5" y="5" width="17" height="16" rx="2"
+                stroke="currentColor" stroke-width="1.7"/>
+          <path d="M7 3v4m10-4v4M4 9h16"
+                stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+
+        <input id="task-deadline" name="prazo" type="datetime-local">
+      </div>
+
+      <small class="field-error" data-error-for="prazo"></small>
+    </div>
+
+    <p class="form-message" id="task-form-message"
+       role="alert" aria-live="polite"></p>
+
+  </div>
+
+  <footer class="dialog-footer">
+    <button class="button button-secondary"
+            id="cancel-dialog-button"
+            type="button">
+      Cancelar
+    </button>
+
+    <button class="button button-primary"
+            id="save-task-button"
+            type="submit">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="m5 12 4 4L19 6"
+              stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>Salvar tarefa</span>
+    </button>
+  </footer>
+
+</form>
+
+</dialog>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+</body> </html>
