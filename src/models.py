@@ -58,6 +58,9 @@ class Usuario(UserMixin, db.Model):
     participacoes: Mapped[list["Participacao"]] = relationship(
         "Participacao", back_populates="usuario", cascade="all, delete-orphan"
     )
+    tarefas_pessoais: Mapped[list["TarefaPessoal"]] = relationship(
+        "TarefaPessoal", back_populates="usuario", cascade="all, delete-orphan"
+    )
 
     @property
     def is_active(self) -> bool:  # noqa: D401 - substitui o UserMixin
@@ -247,4 +250,37 @@ class Entrega(db.Model):
             "resultado": self.resultado.value,
             "autor": self.usuario.resumo(),
             "feedback": feedback,
+        }
+
+
+class TarefaPessoal(db.Model):
+    __tablename__ = "tarefas_pessoais"
+    __table_args__ = (
+        Index("ix_tarefas_pessoais_usuario_prazo", "usuario_id", "prazo"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    usuario_id: Mapped[int] = mapped_column(
+        ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False
+    )
+    titulo: Mapped[str] = mapped_column(db.String(150), nullable=False)
+    descricao: Mapped[str | None] = mapped_column(db.Text)
+    prazo: Mapped[datetime | None] = mapped_column()
+    status: Mapped[AtividadeStatus] = mapped_column(
+        enum_col(AtividadeStatus), default=AtividadeStatus.A_FAZER, nullable=False
+    )
+    concluida_em: Mapped[datetime | None] = mapped_column()
+    criado_em: Mapped[datetime] = mapped_column(default=agora, nullable=False)
+
+    usuario: Mapped[Usuario] = relationship("Usuario", back_populates="tarefas_pessoais")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "id": self.id,
+            "titulo": self.titulo,
+            "descricao": self.descricao,
+            "prazo": iso(self.prazo),
+            "status": self.status.value,
+            "concluida_em": iso(self.concluida_em),
+            "criado_em": iso(self.criado_em),
         }

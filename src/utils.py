@@ -39,6 +39,7 @@ FIM_DO_DIA = time(23, 59, 59)
 class Perfil(StrEnum):
     COORDENADOR = "coordenador"
     BOLISTA = "bolsista"
+    INDIVIDUAL = "individual"
 
 
 class ProjetoStatus(StrEnum):
@@ -442,7 +443,7 @@ def validar_cadastro(dados: dict[str, Any]) -> tuple[dict[str, Any], dict[str, A
 
     perfil = _texto(dados.get("perfil"))
     if perfil not in list(Perfil):
-        erros["perfil"] = "Escolha um perfil: coordenador ou bolsista"
+        erros["perfil"] = "Escolha um perfil: coordenador, bolsista ou individual"
 
     return {"nome": nome, "email": email, "senha": senha, "perfil": perfil}, erros
 
@@ -543,6 +544,38 @@ def validar_atividade(
         if link and not eh_url_http(link):
             erros["link_material"] = "Informe uma URL válida começando em http:// ou https://"
         validos["link_material"] = link or None
+    return validos, erros
+
+
+def validar_tarefa_pessoal(
+    dados: dict[str, Any], parcial: bool = False
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    erros: dict[str, Any] = {}
+    obrigatorio = not parcial
+    validos: dict[str, Any] = {}
+
+    if "titulo" in dados or obrigatorio:
+        validos["titulo"] = validar_texto(
+            dados.get("titulo"),
+            "titulo",
+            erros,
+            obrigatorio=True,
+            mensagem_obrigatorio="O título é obrigatório",
+            maximo=LIMITE_TITULO,
+            mensagem_maximo=f"O título deve ter no máximo {LIMITE_TITULO} caracteres",
+        )
+    if "descricao" in dados:
+        validos["descricao"] = validar_texto(
+            dados.get("descricao"),
+            "descricao",
+            erros,
+            maximo=LIMITE_DESCRICAO,
+            mensagem_maximo=f"A descrição deve ter no máximo {LIMITE_DESCRICAO} caracteres",
+        ) or None
+    if "prazo" in dados or obrigatorio:
+        validos["prazo"] = _prazo(
+            dados.get("prazo"), "prazo", erros, obrigatorio=False
+        )
     return validos, erros
 
 

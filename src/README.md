@@ -19,6 +19,10 @@ python -m flask --app app run --port 5000
 ```
 
 - API: <http://127.0.0.1:5000/api>
+- **Aplicação: <http://127.0.0.1:5000/>** (abre o painel ou o login)
+- Login: <http://127.0.0.1:5000/login>
+- Cadastro: <http://127.0.0.1:5000/cadastro>
+- Tarefas: <http://127.0.0.1:5000/tarefas> (requer sessão)
 - **Explorador no navegador: <http://127.0.0.1:5000/dev/api>**
 - Sonda de saúde: <http://127.0.0.1:5000/api/saude>
 
@@ -33,7 +37,7 @@ python -m flask --app app run --port 5000
 ### Testes
 
 ```bash
-python -m pytest tests -q       # 37 testes
+python -m pytest tests -q       # 74 testes
 ```
 
 ### Testar sem navegador
@@ -64,14 +68,24 @@ src/
 │   ├── membro_service.py
 │   ├── atividade_service.py
 │   ├── entrega_service.py
-│   └── painel_service.py
+│   ├── painel_service.py
+│   └── tarefa_pessoal_service.py
 ├── routes/                # só HTTP: ler parâmetros, chamar service, responder
-│   ├── auth.py  projetos.py  membros.py  atividades.py  entregas.py
+│   ├── auth.py  projetos.py  membros.py  atividades.py  entregas.py  tarefas.py
+├── templates/             # telas Flask
+├── static/
+│   ├── css/app.css
+│   └── js/                # api.js, auth.js, tarefas.js
+├── migrations/            # migrações SQLite pontuais
 └── tests/                 # pytest
 ```
 
 Fluxo sempre o mesmo: **Route → Service → Model**. Regras de negócio não vivem em
 `routes/`, e nenhum módulo de `services/` depende de `request`.
+
+Templates HTML ficam em `templates/`; CSS e JavaScript do navegador ficam em
+`static/css/` e `static/js/`. O painel usa a sessão Flask por cookie e consome a
+API de tarefas pessoais, sem substituir os fluxos acadêmicos existentes.
 
 ---
 
@@ -99,6 +113,26 @@ Erros de validação trazem `campos`:
 | GET | `/api/auth/me` | logado | dados do usuário da sessão + `instituicao` |
 | POST | `/api/auth/logout` | logado | encerra a sessão |
 | PUT | `/api/perfil/senha` | logado | exige `senha_atual`, `nova_senha` e `confirmar_nova_senha` |
+
+O cadastro aceita os perfis `coordenador`, `bolsista` e `individual`. O perfil
+`individual` mantém acesso ao login e às tarefas pessoais, sem conceder permissões
+de coordenador ou bolsista nos fluxos de projeto.
+
+### Tarefas pessoais
+
+| Método | Rota | Quem | Observações |
+| --- | --- | --- | --- |
+| GET | `/api/tarefas?status=&q=&pagina=&por_pagina=` | logado | Lista somente tarefas próprias; prazo ausente é permitido |
+| POST | `/api/tarefas` | logado | Cria tarefa com `titulo`, `descricao` opcional e `prazo` opcional |
+| GET | `/api/tarefas/{id}` | logado | Tarefa de outro usuário responde 404 |
+| PUT | `/api/tarefas/{id}` | logado | Edita título, descrição ou prazo; status tem endpoint próprio |
+| PATCH | `/api/tarefas/{id}/status` | logado | `a_fazer`, `em_andamento` ou `concluida` |
+| DELETE | `/api/tarefas/{id}` | logado | Exclui somente tarefa própria |
+
+Em bancos SQLite existentes, execute `python -m migrations.add_individual_profile`
+no diretório `src` para atualizar a restrição de perfil antes de cadastrar usuários
+individuais. A migração preserva usuários, dados, índices e gatilhos; faça um backup
+do banco antes de executá-la. Bancos novos já são criados com o perfil individual.
 
 ### Projetos
 
@@ -177,6 +211,7 @@ Erros de validação trazem `campos`:
 | RN12 | `atrasada` é derivado (prazo vencido e não concluída) — nunca é salvo |
 | RN13 | Os chips são derivados: `codigo`, `rotulo`, `tom`, `atrasada`, `vence_em_dias` |
 | RN14 | Cadastro exige perfil, confirmação de senha e senha forte |
+| RN15 | Cada tarefa pessoal só pode ser consultada ou alterada pelo próprio usuário |
 
 ### Campos derivados (nunca persistidos)
 
@@ -237,14 +272,15 @@ Hoje o alvo é SQLite, com `db.Enum(native_enum=False)` (VARCHAR + CHECK) e
 ## O explorador (`/dev/api`)
 
 Página estática de desenvolvimento, sem framework, para exercitar a API no navegador:
-login com as contas do seed, formulário de método/caminho/corpo, tabela com as 28 rotas
-(cada uma com exemplo pronto) e a lista de ids das suas atividades e projetos.
+login com as contas do seed, formulário de método/caminho/corpo, tabela de rotas com
+exemplos e lista de ids das suas atividades e projetos. As rotas de tarefas pessoais
+estão documentadas na seção acima.
 
 No botão **Usar**, o `{id}` do caminho é substituído pelo id mais recente do tipo
 correspondente (`/atividades/…` usa atividade, `/entregas/…` usa entrega,
 `/projetos/…` usa projeto, `/membros/…` usa usuário). O caminho e o corpo podem ser
 editados antes de enviar.
 
-Rotas de desenvolvimento: `GET /` (redireciona para `/dev/api`) e `GET /dev/api`.
-Nenhuma delas altera dados; para removê-las, apague o bloco `explorador_da_api`/`raiz`
-em `app.py` e o arquivo `templates/explorador.html`.
+Rotas da interface: `GET /` (redireciona para `/tarefas` com sessão ou `/login`),
+`GET /login`, `GET /cadastro` e `GET /tarefas` (protegida pela sessão).
+`GET /dev/api` continua disponível como explorador de desenvolvimento.

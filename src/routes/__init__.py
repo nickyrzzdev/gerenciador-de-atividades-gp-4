@@ -12,6 +12,6 @@ def saude():
 
 
 # Importados no fim para que os submódulos usem `api` já definido acima.
-from routes import auth, atividades, entregas, membros, projetos  # noqa: E402,F401
+from routes import auth, atividades, entregas, membros, projetos, tarefas  # noqa: E402,F401
 
 __all__ = ["api"]

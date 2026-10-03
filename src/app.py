@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 
 from flask import Flask, jsonify, redirect, render_template, request
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from sqlalchemy import event
 from sqlalchemy.engine import Engine
 from werkzeug.exceptions import HTTPException, MethodNotAllowed, NotFound
@@ -128,7 +128,28 @@ def explorador_da_api():
 
 @app.get("/")
 def raiz():
-    return redirect("/dev/api")
+    return redirect("/tarefas" if current_user.is_authenticated else "/login")
+
+
+@app.get("/login")
+def pagina_login():
+    if current_user.is_authenticated:
+        return redirect("/tarefas")
+    return render_template("login.html")
+
+
+@app.get("/cadastro")
+def pagina_cadastro():
+    if current_user.is_authenticated:
+        return redirect("/tarefas")
+    return render_template("cadastro.html")
+
+
+@app.get("/tarefas")
+def pagina_tarefas():
+    if not current_user.is_authenticated:
+        return redirect("/login")
+    return render_template("index.html")
 
 
 with app.app_context():
