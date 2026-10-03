@@ -1,124 +1,252 @@
-# LabFlow UEA
+# Gerenciador de Tarefas Individual
 
-Gerenciamento de atividades de projetos de P&D da UEA.
+Sistema web para gerenciamento de tarefas pessoais, desenvolvido como parte do projeto de **Gerência de Projetos (GP)**. A aplicação permite que cada usuário tenha suas próprias tarefas, podendo criá-las, editá-las, consultar seus status e excluí-las.
 
-Projeto da disciplina **Fundamentos de Sistemas de Informação (FSI)** · Universidade do Estado do Amazonas (UEA) · Outubro de 2026.
-
-O LabFlow UEA é uma aplicação web feita com Flask para organizar o trabalho de equipes de P&D. Coordenadores cadastram projetos, vinculam bolsistas e atribuem atividades de **desenvolvimento**, **estudo** e **entrega**. Bolsistas acompanham suas tarefas, atualizam o andamento e enviam entregas, que recebem feedback do coordenador (aprovação ou pedido de ajustes com comentário).
-
-## Problema e diferenciais
-
-Ferramentas como Trello, Notion, Jira, Todoist e Asana são genéricas: não distinguem estudo, desenvolvimento e entrega, não têm feedback formal por entrega e não dão uma visão clara a quem entra no meio do projeto. O LabFlow resolve isso com:
-
-- **Pensado para P&D acadêmico:** abas por tipo de atividade (Desenvolvimento, Estudo, Entregas).
-- **Feedback por entrega:** a entrega só é concluída depois da aprovação do coordenador.
-- **Visão geral do projeto:** total de atividades, concluídas, pendentes e progresso, útil para quem ingressa depois.
-- **Simplicidade:** sem configuração prévia para começar a usar.
+O projeto possui uma interface web responsiva integrada a uma API desenvolvida em Flask, com autenticação de usuários e persistência dos dados em banco de dados.
 
 ## Funcionalidades
 
-São 24 requisitos funcionais (RF01 a RF24) em 4 módulos:
+### Usuários
 
-1. **Autenticação e perfis (RF01–RF05):** cadastro, login, logout, controle de acesso por perfil (coordenador ou bolsista) e edição de perfil.
-2. **Projetos (RF06–RF11):** CRUD pelo coordenador, vínculo e desvínculo de bolsistas, listagem dos projetos do usuário e visão geral com progresso.
-3. **Atividades com abas (RF12–RF20):** CRUD pelo coordenador com responsável e prazo, atualização de status pelo bolsista (a fazer, em andamento, concluída), filtros por status e responsável, cores de atraso e urgência, visão "Hoje / Esta semana" e link de material nas atividades de estudo.
-4. **Entrega com feedback (RF21–RF24):** envio de entrega (descrição + link), avaliação pelo coordenador, reenvio após ajustes e histórico de envios e feedbacks.
+* Cadastro de novos usuários.
+* Login e logout.
+* Autenticação e controle de sessão.
+* Proteção das tarefas por usuário.
 
-## Regras de negócio
+### Tarefas pessoais
 
-- **RN01:** só o coordenador cria projetos e atividades e atribui responsáveis.
-- **RN02:** o bolsista só vê projetos em que está vinculado e só altera o status das próprias atividades.
-- **RN03:** só o coordenador do projeto avalia as entregas dele.
-- **RN04:** fluxo da entrega: Pendente → Enviada → Aprovada; ou Enviada → Ajustes solicitados → Reenviada.
-- **RN05:** atividade de entrega só vira concluída quando o coordenador aprova.
-- **RN06:** atividade é atrasada quando o prazo passa sem estar concluída.
-- **RN07:** cada reenvio gera um novo registro de Entrega, preservando o histórico.
+* Criar tarefas.
+* Visualizar tarefas cadastradas.
+* Editar tarefas.
+* Excluir tarefas.
+* Alterar o status das tarefas.
+* Definir título, descrição e prazo.
+* Registrar a data de criação.
+* Registrar a conclusão da tarefa.
 
-## Tecnologias
+### Organização
 
-| Tecnologia | Uso |
-| --- | --- |
-| Python + Flask | Framework web: rotas e regras da aplicação |
-| SQLite + Flask-SQLAlchemy | Banco de dados e mapeamento das tabelas em classes Python |
-| Flask-Login | Login, logout e sessão |
-| Jinja2 + Bootstrap 5 (CDN) | Páginas HTML e layout responsivo, sem build de front-end |
-| Werkzeug | Hash de senha (já vem com o Flask) |
+* Busca por tarefas.
+* Filtros por status.
+* Paginação.
+* Indicadores e estatísticas das tarefas.
+* Interface responsiva para diferentes tamanhos de tela.
 
-A stack foi simplificada de propósito: apenas três bibliotecas instaladas (Flask, Flask-SQLAlchemy e Flask-Login).
+## Tecnologias utilizadas
 
-## Estrutura de pastas
+### Back-end
 
+* **Python**
+* **Flask**
+* **Flask-SQLAlchemy**
+* **Flask-Login**
+* **SQLAlchemy**
+
+### Front-end
+
+* **HTML5**
+* **CSS3**
+* **JavaScript**
+
+### Testes
+
+* **Pytest**
+
+### Controle de versão
+
+* **Git**
+* **GitHub**
+
+## Estrutura do projeto
+
+```text
+gerenciador-de-atividades-gp-4/
+│
+├── src/
+│   ├── app.py
+│   ├── models.py
+│   ├── utils.py
+│   │
+│   ├── routes/
+│   │   ├── __init__.py
+│   │   └── tarefas.py
+│   │
+│   ├── services/
+│   │   └── tarefa_pessoal_service.py
+│   │
+│   ├── templates/
+│   │   ├── base_auth.html
+│   │   ├── cadastro.html
+│   │   ├── index.html
+│   │   └── login.html
+│   │
+│   ├── static/
+│   │   ├── css/
+│   │   │   └── app.css
+│   │   └── js/
+│   │       ├── api.js
+│   │       ├── auth.js
+│   │       └── tarefas.js
+│   │
+│   ├── migrations/
+│   │   ├── __init__.py
+│   │   └── add_individual_profile.py
+│   │
+│   ├── tests/
+│   │   └── test_tarefas_pessoais.py
+│   │
+│   └── requirements.txt
+│
+├── README.md
+└── .gitignore
 ```
-labflow/
-├── app.py            # inicia o app, configura banco e login
-├── models.py         # classes Usuario, Projeto, Atividade e Entrega
-├── routes.py         # telas e ações
-├── services.py       # regras de negócio: fluxo da entrega, progresso, atraso
-├── templates/        # páginas HTML (Jinja2)
-├── static/           # CSS próprio, se necessário
-└── requirements.txt  # dependências
-```
 
-## Como executar
+## Como executar o projeto
 
-Requisito: Python 3.10 ou superior.
+### Requisitos
+
+É necessário ter instalado:
+
+* Python 3
+* Git
+
+### 1. Clonar o repositório
 
 ```bash
-# 1. Clonar o repositório e entrar na pasta
-git clone (https://github.com/nickyrzzdev/gerenciador-de-atividades-gp-4)
-cd labflow
-
-# 2. Criar e ativar o ambiente virtual
-python -m venv venv
-source venv/bin/activate        # Linux/macOS
-venv\Scripts\activate           # Windows
-
-# 3. Instalar as dependências
-pip install -r requirements.txt
-
-# 4. Rodar a aplicação
-python app.py
+git clone https://github.com/nickyrzzdev/gerenciador-de-atividades-gp-4.git
 ```
 
-Acesse **http://127.0.0.1:5000** no navegador. O banco SQLite e as tabelas são criados automaticamente na primeira execução.
+Entre na pasta do projeto:
 
-## Modelo de dados
+```bash
+cd gerenciador-de-atividades-gp-4
+```
 
-- **Usuario:** nome, e-mail, senha (hash), perfil (coordenador ou bolsista) e data de cadastro.
-- **Projeto:** nome, descrição, datas de início e fim, coordenador responsável.
-- **Participacao:** vínculo N:N entre Projeto e Usuario (bolsistas do projeto).
-- **Atividade:** projeto, título, descrição, tipo (desenvolvimento, estudo ou entrega), status, prazo, responsável, link de material e data de conclusão.
-- **Entrega:** atividade, bolsista, descrição, link, data de envio, resultado (pendente, aprovada ou ajustes), comentário de feedback e data de avaliação.
+### 2. Instalar as dependências
 
-Duas decisões de modelagem: uma única tabela `Atividade` com a coluna `tipo` (as abas são apenas filtros) e o feedback dentro da própria `Entrega`, sem tabela separada.
+Entre na pasta `src`:
 
-## Limitações e evoluções futuras
+```bash
+cd src
+```
 
-Limitações conhecidas desta versão:
+Instale as dependências:
 
-- Sem proteção CSRF nos formulários (Flask-WTF).
-- Sem migrações de banco (tabelas criadas com `db.create_all()`).
+```bash
+py -m pip install -r requirements.txt
+```
 
-Fora do escopo desta versão, previstos como evolução:
+### 3. Executar a aplicação
 
-- Alertas de prazo por e-mail
-- Diário de aprendizado
-- Ofensiva e gamificação
-- Painel do coordenador
-- Relatório mensal exportável (CSV/PDF)
-- Proteção CSRF com Flask-WTF e migrações com Flask-Migrate
-- Testes automatizados com pytest
+Ainda dentro da pasta `src`, execute:
 
-## Documentação
+```bash
+py app.py
+```
 
-A documentação completa (personas, benchmarking, requisitos, diagramas de casos de uso e banco de dados) está em `docs/LabFlow_UEA_Documentacao.docx`.
+O Flask iniciará o servidor local.
 
-## Autores
+A aplicação ficará disponível em:
 
-- Nicole Kyrstien (Front-End)
-- João Miguel (Back-End)
-- Gabriel Augusto (Back-End)
-- Hanna Barroncas (Back-End)
-- João Vitor (Front-End)
+```text
+http://127.0.0.1:5000
+```
 
-Disciplina: Fundamentos de Sistemas de Informação (FSI) · UEA.
+Abra esse endereço em um navegador para acessar o sistema.
+
+### 4. Encerrar a aplicação
+
+Para interromper o servidor, pressione:
+
+```text
+Ctrl + C
+```
+
+## Executando os testes
+
+Os testes automatizados podem ser executados a partir da pasta raiz do projeto com:
+
+```bash
+py -m pytest -q
+```
+
+### Resultado atual
+
+O projeto possui **74 testes automatizados**, atualmente aprovados:
+
+```text
+74 passed
+```
+
+Os testes abrangem os principais comportamentos do sistema, incluindo funcionalidades relacionadas ao gerenciamento das tarefas pessoais.
+
+## Fluxo principal da aplicação
+
+```text
+Cadastro
+   ↓
+Login
+   ↓
+Tela principal
+   ↓
+Gerenciamento de tarefas
+   ├── Criar tarefa
+   ├── Visualizar tarefa
+   ├── Editar tarefa
+   ├── Alterar status
+   └── Excluir tarefa
+```
+
+## Arquitetura
+
+O sistema é organizado separando as principais responsabilidades da aplicação:
+
+* **Models:** representam as entidades e o acesso aos dados.
+* **Routes:** definem as rotas e endpoints da aplicação.
+* **Services:** concentram regras de negócio relacionadas às tarefas pessoais.
+* **Templates:** responsáveis pelas páginas HTML.
+* **Static:** contém arquivos CSS e JavaScript.
+* **Tests:** contém os testes automatizados.
+
+Essa organização facilita a manutenção e a evolução do projeto.
+
+## Banco de dados
+
+A aplicação utiliza **SQLAlchemy** para comunicação com o banco de dados.
+
+Entre as principais entidades estão:
+
+* `Usuario`
+* `Projeto`
+* `Participacao`
+* `Atividade`
+* `Entrega`
+* `TarefaPessoal`
+
+As tarefas pessoais são associadas ao usuário responsável, garantindo que cada usuário trabalhe com suas próprias tarefas.
+
+## Status das tarefas
+
+As tarefas podem possuir diferentes estados, permitindo acompanhar seu andamento dentro do sistema.
+
+O status é utilizado pela interface para organizar, filtrar e apresentar as tarefas ao usuário.
+
+## Controle de versão
+
+O projeto utiliza Git para controle de versão e GitHub para hospedagem do repositório.
+
+As alterações são desenvolvidas em branches e posteriormente integradas à branch principal por meio de Pull Requests.
+
+A implementação do gerenciador de tarefas individual foi integrada à branch `main` através do Pull Request:
+
+**Implementação do gerenciador de tarefas individual — PR #3**
+
+A integração foi realizada após a resolução dos conflitos entre as branches e a execução dos testes automatizados.
+
+## Objetivo do projeto
+
+O objetivo é disponibilizar uma aplicação simples e organizada para que usuários possam administrar suas tarefas pessoais através de uma interface web, permitindo acompanhar o andamento das atividades e organizar suas demandas de forma centralizada.
+
+## Status do projeto
+
+**Concluído — implementação do gerenciador de tarefas individual integrada à `main`.**
