@@ -1,0 +1,1 @@
+"""Camada de regras de negócio. Nenhuma rota importa `models` diretamente."""
