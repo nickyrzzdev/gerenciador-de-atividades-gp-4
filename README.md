@@ -414,3 +414,10 @@ O objetivo é disponibilizar uma aplicação simples e organizada para que usuá
 # Status do projeto
 
 **Concluído — implementação do gerenciador de tarefas individual integrada à `main`.**
+
+# Integrantes do projeto
+* Nicole Kyrstien (Front-End)
+* Gabriel Amaral (Back-End)
+* Hanna Barroncas (Back-End)
+* Joao Miguel (Back-End)
+* Joao Vitor (Back-End)
