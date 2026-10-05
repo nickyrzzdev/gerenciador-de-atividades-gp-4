@@ -1,0 +1,13 @@
+<<<<<<< HEAD
+# Runtime
+Flask>=3.0,<4.0
+Flask-SQLAlchemy>=3.1,<4.0
+Flask-Login>=0.6,<1.0
+
+# Testes
+pytest>=8.0,<10.0
+=======
+Flask
+Flask-SQLAlchemy
+Flask-Login
+>>>>>>> origin/main

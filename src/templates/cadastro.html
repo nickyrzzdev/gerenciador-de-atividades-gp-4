@@ -1,0 +1,57 @@
+{% extends "base_auth.html" %}
+{% block title %}Criar conta · LabFlow{% endblock %}
+{% block brand_heading %}Uma rotina mais leve começa com você.{% endblock %}
+{% block brand_description %}Crie seu espaço e organize suas tarefas no seu próprio ritmo.{% endblock %}
+{% block auth_content %}
+  <p class="eyebrow">NOVO POR AQUI?</p>
+  <h2>Crie sua conta.</h2>
+  <p class="auth-intro">Seu espaço pessoal para tirar os planos do papel.</p>
+
+  <form id="signup-form" class="auth-form" novalidate>
+    <div class="field">
+      <label for="signup-name">Nome completo</label>
+      <div class="input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="8" r="3.5" stroke="currentColor" stroke-width="1.7"/><path d="M5 20c.5-3.2 3.2-5 7-5s6.5 1.8 7 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <input id="signup-name" name="nome" type="text" autocomplete="name" maxlength="120" placeholder="Seu nome" required>
+      </div>
+      <small class="field-error" data-error-for="nome"></small>
+    </div>
+    <div class="field">
+      <label for="signup-email">E-mail</label>
+      <div class="input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <input id="signup-email" name="email" type="email" autocomplete="email" maxlength="180" placeholder="voce@exemplo.com" required>
+      </div>
+      <small class="field-error" data-error-for="email"></small>
+    </div>
+    <div class="field">
+      <label for="signup-password">Senha</label>
+      <div class="input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 1 1 8 0v3m-4 4v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <input id="signup-password" name="senha" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres, 1 maiúscula e 1 número" required>
+        <button class="icon-button password-toggle" type="button" data-password-toggle="signup-password" aria-label="Mostrar senha" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/></svg>
+        </button>
+      </div>
+      <small class="field-hint">Use ao menos 8 caracteres, uma letra maiúscula e um número.</small>
+      <small class="field-error" data-error-for="senha"></small>
+    </div>
+    <div class="field">
+      <label for="signup-confirm-password">Confirmar senha</label>
+      <div class="input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 1 1 8 0v3m-4 4v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <input id="signup-confirm-password" name="confirmar_senha" type="password" autocomplete="new-password" placeholder="Digite a senha novamente" required>
+        <button class="icon-button password-toggle" type="button" data-password-toggle="signup-confirm-password" aria-label="Mostrar senha" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/></svg>
+        </button>
+      </div>
+      <small class="field-error" data-error-for="confirmar_senha"></small>
+    </div>
+    <p class="form-message" id="signup-message" role="alert" aria-live="polite"></p>
+    <button class="button button-primary button-wide" type="submit">
+      <span>Criar conta</span><span aria-hidden="true">→</span>
+    </button>
+  </form>
+
+  <div class="auth-switch">Já tem uma conta? <a href="{{ url_for('pagina_login') }}">Entrar</a></div>
+{% endblock %}

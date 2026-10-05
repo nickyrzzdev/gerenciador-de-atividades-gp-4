@@ -1,0 +1,308 @@
+### LabFlow — coleção de requisições
+### Use com: VS Code (extensão "REST Client", botão "Send Request" acima de cada bloco)
+### ou IntelliJ/VS "HTTP Client". O cookie de sessão é mantido entre as requisições do arquivo.
+###
+### Antes de começar, rode o seed:  python seed.py --reset
+###
+### Logins do seed (senha de todos: Senha123)
+###   ana.carvalho@uea.edu.br | joao.silva@uea.edu.br (coordenadores)
+###   marina.costa@ | lucas.costa@ | rafael.freitas@ | vivian.souza@uea.edu.br (bolsistas)
+
+@baseUrl = http://127.0.0.1:5000/api
+@json = Content-Type: application/json
+
+### Seed: projeto 1 é da Ana, projeto 2 é do João.
+@projetoAna = 1
+@projetoJoao = 2
+@marina = 3
+@vivian = 6
+@atividadeDev = 1
+@atividadeEstudo = 5
+@entregaPendente = 10
+@entregaEnviada = 8
+
+
+### ------------------------------------------------------------------ saúde
+GET {{baseUrl}}/saude
+
+### ------------------------------------------------- 1. autenticação (público)
+
+### Cadastro (o perfil é escolhido aqui)
+POST {{baseUrl}}/auth/cadastro
+{{json}}
+{
+  "nome": "Novo Bolsista",
+  "email": "novo.bolsista@uea.edu.br",
+  "senha": "Senha123",
+  "confirmar_senha": "Senha123",
+  "perfil": "bolsista"
+}
+
+### Login — a partir daqui é a sessão da Marina (bolsista)
+POST {{baseUrl}}/auth/login
+{{json}}
+{
+  "email": "marina.costa@uea.edu.br",
+  "senha": "Senha123"
+}
+
+### Falha de login: sempre 401 com a mesma mensagem
+POST {{baseUrl}}/auth/login
+{{json}}
+{
+  "email": "marina.costa@uea.edu.br",
+  "senha": "errada"
+}
+
+GET {{baseUrl}}/auth/me
+
+### Troca de senha (exige a senha atual)
+PUT {{baseUrl}}/perfil/senha
+{{json}}
+{
+  "senha_atual": "Senha123",
+  "nova_senha": "Senha123",
+  "confirmar_nova_senha": "Senha123"
+}
+
+### ------------------------------------------------- 2. projetos (visão da bolsista)
+
+### Só o que a Marina pode ver: onde ela participa + onde coordena
+GET {{baseUrl}}/projetos
+
+### Filtros: ?aba=em_andamento|concluidos|todos e ?q=busca (aba inválida devolve 400)
+GET {{baseUrl}}/projetos?aba=em_andamento&q=autentica
+
+### KPIs da tela "Meus Projetos"
+GET {{baseUrl}}/projetos/resumo
+
+### Detalhe do projeto (progresso percentual vem aqui)
+GET {{baseUrl}}/projetos/{{projetoAna}}
+
+### Visão geral (entra no meio do projeto): KPIs, baldes, ranking, variação
+GET {{baseUrl}}/projetos/{{projetoAna}}/visao-geral?periodo=30
+
+### 404 para projeto alheio (não vaza existência)
+GET {{baseUrl}}/projetos/{{projetoJoao}}
+
+
+### ------------------------------------------------- 3. atividades
+
+### Lista do projeto com filtros: ?tipo= ?status= ?aba= ?q= ?ordenar= ?pagina= ?por_pagina=
+GET {{baseUrl}}/projetos/{{projetoAna}}/atividades?tipo=entrega&status=pendente&por_pagina=5
+
+### Detalhe: traz status_exibicao (o chip) e acoes_permitidas
+GET {{baseUrl}}/atividades/{{atividadeDev}}
+
+### Criar (só coordenador) — a atividade nasce em a_fazer
+POST {{baseUrl}}/projetos/{{projetoAna}}/atividades
+{{json}}
+{
+  "titulo": "Diagramar o fluxo de login",
+  "descricao": "Mermaid no Notion",
+  "tipo": "estudo",
+  "prazo": "2026-12-31",
+  "responsavel_id": {{marina}},
+  "link_material": "https://exemplo.uea.edu.br/diagramas/login"
+}
+
+### Criar entrega
+POST {{baseUrl}}/projetos/{{projetoAna}}/atividades
+{{json}}
+{
+  "titulo": "Entregar o relatório final",
+  "descricao": "Relatório em PDF",
+  "tipo": "entrega",
+  "prazo": "2026-11-20 18:00",
+  "responsavel_id": {{marina}}
+}
+
+### Editar (PUT não muda status — o status tem endpoint próprio)
+PUT {{baseUrl}}/atividades/{{atividadeDev}}
+{{json}}
+{
+  "titulo": "Modelagem do banco de dados (revista)"
+}
+
+### Mudar status: a_fazer -> em_andamento -> concluída (reabrir volta)
+PATCH {{baseUrl}}/atividades/{{atividadeDev}}/status
+{{json}}
+{
+  "status": "concluida"
+}
+
+### 422: atividade de entrega não aceita PATCH de status
+PATCH {{baseUrl}}/atividades/{{entregaPendente}}/status
+{{json}}
+{
+  "status": "concluida"
+}
+
+### Excluir (só coordenador, sem atividade pendente)
+DELETE {{baseUrl}}/atividades/{{atividadeDev}}
+{{json}}
+
+### Minha agenda: ?aba=hoje|semana|entregues|pendentes|concluidas|todas
+GET {{baseUrl}}/atividades/minhas?aba=todas
+GET {{baseUrl}}/atividades/minhas?aba=hoje
+GET {{baseUrl}}/atividades/minhas?aba=semana
+GET {{baseUrl}}/atividades/minhas?aba=pendentes
+
+
+### ------------------------------------------------- 4. membros (só coordenador)
+
+GET {{baseUrl}}/projetos/{{projetoAna}}/membros
+
+### Opções do select "Responsável" (só bolsistas vinculados)
+GET {{baseUrl}}/projetos/{{projetoAna}}/membros/opcoes
+
+POST {{baseUrl}}/projetos/{{projetoAna}}/membros
+{{json}}
+{
+  "email": "vivian.souza@uea.edu.br"
+}
+
+### DELETE exige o header JSON mesmo sem corpo
+DELETE {{baseUrl}}/projetos/{{projetoAna}}/membros/{{vivian}}
+{{json}}
+
+### 409: não desvincula quem tem atividade não concluída
+DELETE {{baseUrl}}/projetos/{{projetoAna}}/membros/{{marina}}
+{{json}}
+
+
+### ------------------------------------------------- 5. fluxo da entrega
+
+### Histórico (drawer): situação, envios, pode_reenviar
+GET {{baseUrl}}/atividades/{{entregaPendente}}/entregas
+
+### Enviar/reenviar (só a responsável, e só quando não há avaliação pendente)
+POST {{baseUrl}}/atividades/{{entregaPendente}}/entregas
+{{json}}
+{
+  "descricao": "Relatório com os testes de carga executados",
+  "link": "https://exemplo.uea.edu.br/relatorio-carga"
+}
+
+### 409: reenviar enquanto aguarda avaliação
+POST {{baseUrl}}/atividades/{{entregaPendente}}/entregas
+{{json}}
+{
+  "descricao": "Tentativa indevida",
+  "link": "https://exemplo.uea.edu.br/x"
+}
+
+### Troca para a coordenadora do projeto 1 (Ana) para avaliar
+POST {{baseUrl}}/auth/login
+{{json}}
+{
+  "email": "ana.carvalho@uea.edu.br",
+  "senha": "Senha123"
+}
+
+### Descubra o id da entrega em /api/atividades/{id}/entregas -> envios[-1].id
+# @entregaId = 1
+
+### Ajustes solicitados (comentário obrigatório)
+POST {{baseUrl}}/entregas/{{entregaId}}/avaliacao
+{{json}}
+{
+  "resultado": "ajustes_solicitados",
+  "comentario": "Faltou o gráfico de latência."
+}
+
+### 422: sem comentário
+POST {{baseUrl}}/entregas/{{entregaId}}/avaliacao
+{{json}}
+{
+  "resultado": "ajustes_solicitados"
+}
+
+### Aprovar
+POST {{baseUrl}}/entregas/{{entregaId}}/avaliacao
+{{json}}
+{
+  "resultado": "aprovada",
+  "comentario": "Ficou ótimo!"
+}
+
+### Volta para a Marina e reenvia (situação vira "reenviada")
+POST {{baseUrl}}/auth/login
+{{json}}
+{
+  "email": "marina.costa@uea.edu.br",
+  "senha": "Senha123"
+}
+
+POST {{baseUrl}}/atividades/{{entregaPendente}}/entregas
+{{json}}
+{
+  "descricao": "Relatório com o gráfico de latência incluído",
+  "link": "https://exemplo.uea.edu.br/relatorio-carga-v2"
+}
+
+### Volte para a Ana e aprove para ver a atividade como "concluída"
+POST {{baseUrl}}/auth/login
+{{json}}
+{
+  "email": "ana.carvalho@uea.edu.br",
+  "senha": "Senha123"
+}
+
+POST {{baseUrl}}/entregas/{{entregaId}}/avaliacao
+{{json}}
+{
+  "resultado": "aprovada",
+  "comentario": "Agora sim."
+}
+
+GET {{baseUrl}}/atividades/{{entregaPendente}}
+
+
+### ------------------------------------------------- 6. criar/editar projeto
+
+POST {{baseUrl}}/projetos
+{{json}}
+{
+  "nome": "Novo projeto de pesquisa",
+  "descricao": "Escopo inicial",
+  "data_inicio": "2026-10-01",
+  "data_fim": "2027-06-30"
+}
+
+PUT {{baseUrl}}/projetos/{{projetoAna}}
+{{json}}
+{
+  "descricao": "Escopo revisado"
+}
+
+### Encerrar: não volta a em andamento depois (422 no PUT com status)
+POST {{baseUrl}}/projetos/{{projetoAna}}/encerrar
+{{json}}
+{}
+
+### 409 enquanto houver membros vinculados ou atividades não concluídas
+DELETE {{baseUrl}}/projetos/{{projetoAna}}
+{{json}}
+
+### 403: bolsista não cria projeto
+POST {{baseUrl}}/auth/login
+{{json}}
+{
+  "email": "marina.costa@uea.edu.br",
+  "senha": "Senha123"
+}
+
+POST {{baseUrl}}/projetos
+{{json}}
+{
+  "nome": "Tentativa inválida",
+  "descricao": "Não deveria passar",
+  "data_inicio": "2026-10-01",
+  "data_fim": "2027-06-30"
+}
+
+
+### ------------------------------------------------- 7. encerrar sessão
+POST {{baseUrl}}/auth/logout
+{{json}}

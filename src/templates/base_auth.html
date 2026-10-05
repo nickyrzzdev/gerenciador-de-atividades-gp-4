@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f7fc">
+  <title>{% block title %}LabFlow{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="{{ url_for('static', filename='js/api.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/auth.js') }}" defer></script>
+</head>
+<body class="auth-page">
+  <main class="auth-layout">
+    <aside class="auth-brand" aria-label="LabFlow">
+      <a class="brand brand-light" href="/" aria-label="LabFlow, início">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="m6 12 4 4 8-9" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span>LabFlow</span>
+      </a>
+
+      <div class="brand-copy">
+        <p class="eyebrow eyebrow-light">UM PASSO DE CADA VEZ</p>
+        <h1>{% block brand_heading %}Organize seu dia com mais leveza.{% endblock %}</h1>
+        <p>{% block brand_description %}Um espaço só seu para cuidar do que realmente importa.{% endblock %}</p>
+      </div>
+
+      <div class="mini-preview" aria-hidden="true">
+        <div class="mini-preview-head">
+          <strong>Seu dia, mais leve.</strong>
+          <span class="preview-dots">•••</span>
+        </div>
+        <div class="preview-task"><span class="preview-check is-checked">✓</span><span>Planejar a semana</span></div>
+        <div class="preview-task"><span class="preview-check"></span><span>Dar vida às ideias</span></div>
+        <div class="preview-task"><span class="preview-check"></span><span>Reservar tempo para você</span></div>
+        <div class="preview-progress"><span></span></div>
+      </div>
+
+      <div class="brand-note">
+        <span class="note-icon" aria-hidden="true">✓</span>
+        <span><strong>Uma tarefa de cada vez.</strong><small>Você está no caminho certo.</small></span>
+      </div>
+
+      <p class="brand-footer">✦ &nbsp;Menos caos. Mais realização.</p>
+    </aside>
+
+    <section class="auth-main">
+      <div class="auth-help">Seu espaço pessoal de organização</div>
+      <div class="auth-card">
+        {% block auth_content %}{% endblock %}
+      </div>
+      <p class="auth-security">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.2 7 10 4-1.8 7-5.5 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.7"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Seus dados ficam protegidos na sua conta.
+      </p>
+      <footer class="auth-legal">© 2026 LabFlow <span>Organize no seu ritmo</span></footer>
+    </section>
+  </main>
+</body>
+</html>

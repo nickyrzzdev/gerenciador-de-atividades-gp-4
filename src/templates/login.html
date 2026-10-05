@@ -1,0 +1,36 @@
+{% extends "base_auth.html" %}
+{% block title %}Entrar · LabFlow{% endblock %}
+{% block brand_heading %}Organize seu dia com mais leveza.{% endblock %}
+{% block brand_description %}Mais clareza para sua rotina. Mais espaço para o que realmente importa.{% endblock %}
+{% block auth_content %}
+  <p class="eyebrow">BEM-VINDO DE VOLTA</p>
+  <h2>Seu dia começa aqui.</h2>
+  <p class="auth-intro">Entre na sua conta e foque no que importa.</p>
+
+  <form id="login-form" class="auth-form" novalidate>
+    <div class="field">
+      <label for="login-email">E-mail</label>
+      <div class="input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16v12H4z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+        <input id="login-email" name="email" type="email" autocomplete="email" placeholder="voce@exemplo.com" required>
+      </div>
+    </div>
+    <div class="field">
+      <label for="login-password">Senha</label>
+      <div class="input-wrap">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2" stroke="currentColor" stroke-width="1.7"/><path d="M8 10V7a4 4 0 1 1 8 0v3m-4 4v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <input id="login-password" name="senha" type="password" autocomplete="current-password" placeholder="Digite sua senha" required>
+        <button class="icon-button password-toggle" type="button" data-password-toggle="login-password" aria-label="Mostrar senha" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="2.5" stroke="currentColor" stroke-width="1.7"/></svg>
+        </button>
+      </div>
+    </div>
+    <label class="remember-option"><input id="login-remember" type="checkbox" name="lembrar"><span>Lembrar de mim</span></label>
+    <p class="form-message" id="login-message" role="alert" aria-live="polite"></p>
+    <button class="button button-primary button-wide" type="submit">
+      <span>Entrar</span><span aria-hidden="true">→</span>
+    </button>
+  </form>
+
+  <div class="auth-switch">Ainda não tem uma conta? <a href="{{ url_for('pagina_cadastro') }}">Criar conta</a></div>
+{% endblock %}

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LabFlow — explorador da API</title>
+  <style>
+    :root {
+      --fundo: #0f1720;
+      --painel: #16212c;
+      --linha: #24313f;
+      --texto: #e6edf3;
+      --suave: #93a4b5;
+      --ok: #3fb950;
+      --erro: #f85149;
+      --alerta: #d29922;
+      --destaque: #58a6ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.5 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+      background: var(--fundo);
+      color: var(--texto);
+    }
+    header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--linha);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    h1 { font-size: 17px; margin: 0; }
+    h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--suave); margin: 0 0 10px; }
+    main { display: grid; grid-template-columns: 1.1fr .9fr; gap: 18px; padding: 18px 24px 40px; align-items: start; }
+    section { background: var(--painel); border: 1px solid var(--linha); border-radius: 10px; padding: 16px; }
+    input, select, textarea, button {
+      font: inherit;
+      color: var(--texto);
+      background: #0d151d;
+      border: 1px solid var(--linha);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+    textarea { width: 100%; min-height: 130px; font-family: ui-monospace, "Cascadia Code", Menlo, monospace; font-size: 12.5px; }
+    button { cursor: pointer; background: #1f6feb; border-color: #1f6feb; font-weight: 600; }
+    button.secundario { background: transparent; border-color: var(--linha); font-weight: 400; }
+    button:hover { filter: brightness(1.1); }
+    .linha { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .linha + .linha { margin-top: 10px; }
+    .cresce { flex: 1 1 220px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--linha); vertical-align: top; }
+    th { color: var(--suave); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+    td.caminho { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; }
+    .metodo {
+      display: inline-block;
+      min-width: 54px;
+      text-align: center;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #22303d;
+      color: var(--suave);
+    }
+    .GET { color: var(--destaque); }
+    .POST { color: var(--ok); }
+    .PUT, .PATCH { color: var(--alerta); }
+    .DELETE { color: var(--erro); }
+    .tag { font-size: 11px; color: var(--suave); border: 1px solid var(--linha); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+    .sessao { font-size: 13px; color: var(--suave); }
+    .sessao b { color: var(--texto); }
+    pre {
+      background: #0b1219;
+      border: 1px solid var(--linha);
+      border-radius: 8px;
+      padding: 12px;
+      overflow: auto;
+      max-height: 420px;
+      font-family: ui-monospace, Menlo, monospace;
+      font-size: 12.5px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 10px 0 0;
+    }
+    .status { font-weight: 700; }
+    .2xx { color: var(--ok); }
+    .3xx, .4xx { color: var(--alerta); }
+    .5xx { color: var(--erro); }
+    .nota { color: var(--suave); font-size: 12.5px; margin: 8px 0 0; }
+    .rolagem { max-height: 520px; overflow: auto; }
+  </style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>LabFlow — explorador da API</h1>
+    <p class="nota">Ferramenta de desenvolvimento: envia requisições com a sua sessão de cookies.</p>
+  </div>
+  <div class="linha">
+    <span class="sessao" id="sessao">carregando…</span>
+    <button class="secundario" id="btn-sobre">Atualizar sessão</button>
+    <button class="secundario" id="btn-sair">Sair</button>
+  </div>
+</header>
+
+<main>
+  <section>
+    <h2>Entrar</h2>
+    <form id="form-login" class="linha">
+      <input class="cresce" id="login-email" value="marina.costa@uea.edu.br" placeholder="e-mail">
+      <input class="cresce" id="login-senha" type="password" value="Senha123" placeholder="senha">
+      <button type="submit">Entrar</button>
+    </form>
+    <p class="nota">
+      Contas do seed (senha <b>Senha123</b>): <code>ana.carvalho@</code> e <code>joao.silva@</code> (coordenadores),
+      <code>marina.costa@</code>, <code>lucas.costa@</code>, <code>rafael.freitas@</code>, <code>vivian.souza@</code> (bolsistas) — todos com
+      sufixo <code>@uea.edu.br</code>.
+    </p>
+  </section>
+
+  <section>
+    <h2>Requisição</h2>
+    <form id="form-req">
+      <div class="linha">
+        <select id="metodo">
+          <option>GET</option>
+          <option>POST</option>
+          <option>PUT</option>
+          <option>PATCH</option>
+          <option>DELETE</option>
+        </select>
+        <input class="cresce" id="caminho" value="/api/projetos" placeholder="/api/…">
+        <button type="submit">Enviar</button>
+      </div>
+      <div class="linha">
+        <textarea id="corpo" spellcheck="false"></textarea>
+      </div>
+    </form>
+    <div class="linha">
+      <span class="status" id="status">—</span>
+      <span class="sessao" id="tempo"></span>
+    </div>
+    <pre id="resposta">A resposta aparece aqui.</pre>
+  </section>
+
+  <section style="grid-column: 1 / -1;">
+    <h2>Rotas disponíveis</h2>
+    <p>No botão <b>Usar</b>, o <code>{id}</code> é trocado pelo ID mais recente do
+      tipo correspondente (tabela abaixo). Você pode editar o caminho e o corpo antes de enviar.</p>
+    <div class="rolagem">
+      <table>
+        <thead>
+          <tr><th>Método</th><th>Caminho</th><th>Quem pode</th><th>Observação</th><th></th></tr>
+        </thead>
+        <tbody id="rotas"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section style="grid-column: 1 / -1;">
+    <h2>IDs úteis da sua conta</h2>
+    <div class="rolagem">
+      <table>
+        <thead>
+          <tr><th>Tipo</th><th>ID</th><th>Nome</th><th>Detalhes</th></tr>
+        </thead>
+        <tbody id="ids"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+const ROTAS = [
+  ["GET", "/api/saude", "público", "", "Sonda de disponibilidade."],
+  ["POST", "/api/auth/cadastro", "público", '{"nome":"Novo Bolsista","email":"novo.bolsista@uea.edu.br","senha":"Senha123","confirmar_senha":"Senha123","perfil":"bolsista"}', "Cadastro com e-mail, senha e perfil."],
+  ["POST", "/api/auth/login", "público", '{"email":"marina.costa@uea.edu.br","senha":"Senha123"}', "Login cria a sessão (cookie)."],
+  ["GET", "/api/auth/me", "logado", "", "Dados do usuário da sessão."],
+  ["POST", "/api/auth/logout", "logado", "{}", "Encerra a sessão."],
+  ["PUT", "/api/perfil/senha", "logado", '{"senha_atual":"Senha123","nova_senha":"Senha123","confirmar_nova_senha":"Senha123"}', "Troca de senha."],
+
+  ["GET", "/api/projetos?aba=em_andamento&q=", "logado", "", "Projetos visíveis: aba=em_andamento|concluidos|todos, busca por q. Aba inválida = 400."],
+  ["GET", "/api/projetos/resumo", "logado", "", "KPIs da tela Meus Projetos."],
+  ["POST", "/api/projetos", "coordenador", '{"nome":"Projeto novo","descricao":"Escopo","data_inicio":"2026-10-01","data_fim":"2027-06-30"}', "Cria projeto (data_fim > data_inicio)."],
+  ["GET", "/api/projetos/{id}", "participante", "", "Detalhe com progresso percentual."],
+  ["PUT", "/api/projetos/{id}", "coordenador", '{"descricao":"Escopo revisado"}', "Edita o projeto."],
+  ["POST", "/api/projetos/{id}/encerrar", "coordenador", "{}", "Encerra (não volta para em andamento)."],
+  ["DELETE", "/api/projetos/{id}", "coordenador", "{}", "Exclui: sem atividades concluídas, membros ou entregas."],
+  ["GET", "/api/projetos/{id}/visao-geral?periodo=30", "participante", "", "Entra no meio do projeto. periodo=7|30|90."],
+
+  ["GET", "/api/projetos/{id}/membros", "participante", "", "Membros vinculados e pendências."],
+  ["GET", "/api/projetos/{id}/membros/opcoes", "participante", "", "Bolsistas vinculados para o select."],
+  ["POST", "/api/projetos/{id}/membros", "coordenador", '{"email":"vivian.souza@uea.edu.br"}', "Vincula por e-mail."],
+  ["DELETE", "/api/projetos/{id}/membros/{usuarioId}", "coordenador", "{}", "409 se houver atividade não concluída."],
+
+  ["GET", "/api/projetos/{id}/atividades?tipo=&status=&q=&aba=", "participante", "", "Filtros: tipo, status, q, aba, ordenar, pagina, por_pagina."],
+  ["POST", "/api/projetos/{id}/atividades", "coordenador", '{"titulo":"Diagramar o fluxo","descricao":"No Notion","tipo":"estudo","prazo":"2026-12-31","responsavel_id":3,"link_material":"https://exemplo.uea.edu.br/x"}', "Nasce em a_fazer. data só = fim do dia."],
+  ["GET", "/api/atividades/{id}", "participante", "", "Detalhe com status_exibicao e acoes_permitidas."],
+  ["PUT", "/api/atividades/{id}", "coordenador", '{"titulo":"Título revisado"}', "Não muda status (422 se enviar)."],
+  ["PATCH", "/api/atividades/{id}/status", "responsável", '{"status":"concluida"}', "a_fazer | em_andamento | concluida. 422 em entrega."],
+  ["DELETE", "/api/atividades/{id}", "coordenador", "{}", "Exclui a atividade."],
+  ["GET", "/api/atividades/minhas?aba=todas", "logado", "", "Aba=hoje|semana|entregues|pendentes|concluidas|todas."],
+
+  ["GET", "/api/atividades/{id}/entregas", "participante", "", "Histórico: situação, envios e pode_reenviar."],
+  ["POST", "/api/atividades/{id}/entregas", "responsável", '{"descricao":"Relatório enviado","link":"https://exemplo.uea.edu.br/entrega"}', "1º envio ou reenvio (409 se aguarda avaliação)."],
+  ["POST", "/api/entregas/{id}/avaliacao", "coordenador", '{"resultado":"ajustes_solicitados","comentario":"Faltou o gráfico."}', "resultado=aprovada|ajustes_solicitados (comentário obrigatório)."],
+];
+
+const trocar = (id, valor) => document.getElementById(id).textContent = valor;
+
+const IDS = { projeto: null, atividade: null, entrega: null, usuario: null };
+
+function lembrarIds(dados) {
+  if (!dados) return;
+  const guardar = (chave, valor) => { if (valor) IDS[chave] = valor; };
+  guardar("projeto", dados.projeto && dados.projeto.id);
+  guardar("atividade", dados.atividade && dados.atividade.id);
+  guardar("entrega", dados.entrega && dados.entrega.id);
+  guardar("usuario", (dados.usuario && dados.usuario.id) || dados.usuario_id);
+}
+
+function idDoTipo(tipo) {
+  return IDS[tipo] || 1;
+}
+
+function tipoDoCaminho(caminho) {
+  if (caminho.includes("/entregas/")) return "entrega";
+  if (caminho.includes("/atividades/")) return "atividade";
+  if (caminho.includes("/membros/")) return "usuario";
+  if (caminho.includes("/projetos/")) return "projeto";
+  return "projeto";
+}
+
+function resolverIds(caminho) {
+  const id = idDoTipo(tipoDoCaminho(caminho));
+  return caminho.replace(/\{id\}/g, String(id));
+}
+
+async function chamarApi(metodo, caminho, corpo) {
+  const opcoes = { method: metodo, headers: { "Content-Type": "application/json" } };
+  if (corpo) opcoes.body = corpo;
+  const inicio = performance.now();
+  const resposta = await fetch(caminho, opcoes);
+  const ms = Math.round(performance.now() - inicio);
+  const bruto = await resposta.text();
+  let dados = null;
+  let texto = bruto;
+  try {
+    dados = JSON.parse(bruto);
+    texto = JSON.stringify(dados, null, 2);
+    lembrarIds(dados);
+  } catch (e) { /* resposta não-JSON: mostra o texto puro */ }
+  return { status: resposta.status, ms, dados, texto };
+}
+
+async function enviar(metodo, caminho, corpo) {
+  const alvoMetodo = document.getElementById("metodo");
+  const alvoCaminho = document.getElementById("caminho");
+  const alvoCorpo = document.getElementById("corpo");
+  alvoMetodo.value = metodo;
+  alvoCaminho.value = caminho;
+  alvoCorpo.value = corpo || "";
+  const { status, ms, texto } = await chamarApi(metodo, caminho, corpo);
+  const status_ = document.getElementById("status");
+  status_.textContent = `${status} ${status === 200 ? "OK" : ""}`.trim();
+  status_.className = "status " + String(status)[0] + "xx";
+  document.getElementById("tempo").textContent = `${ms} ms`;
+  document.getElementById("resposta").textContent = texto;
+  await Promise.all([atualizarSessao(), carregarIds()]);
+}
+
+function montarRotas() {
+  const corpo = document.getElementById("rotas");
+  corpo.innerHTML = "";
+  for (const [metodo, caminho, quem, corpoExemplo, obs] of ROTAS) {
+    const linha = document.createElement("tr");
+    linha.innerHTML = `
+      <td><span class="metodo ${metodo}">${metodo}</span></td>
+      <td class="caminho">${caminho}</td>
+      <td><span class="tag">${quem}</span></td>
+      <td class="nota">${obs}</td>`;
+    const botao = document.createElement("button");
+    botao.className = "secundario";
+    botao.textContent = "Usar";
+    botao.onclick = () => {
+      const resolvido = resolverIds(caminho);
+      document.getElementById("caminho").value = resolvido;
+      enviar(metodo, resolvido, corpoExemplo);
+    };
+    const celula = document.createElement("td");
+    celula.appendChild(botao);
+    linha.appendChild(celula);
+    corpo.appendChild(linha);
+  }
+}
+
+async function atualizarSessao() {
+  const { status, dados } = await chamarApi("GET", "/api/auth/me");
+  const alvo = document.getElementById("sessao");
+  if (status === 200 && dados && dados.usuario) {
+    // textContent (e não innerHTML): nome/e-mail vêm do banco e nunca são HTML
+    const u = dados.usuario;
+    alvo.textContent = `${u.nome} · ${u.perfil} · ${u.email}`;
+  } else {
+    alvo.textContent = "sem sessão — entre com uma das contas do seed";
+  }
+}
+
+async function carregarIds() {
+  const corpo = document.getElementById("ids");
+  corpo.innerHTML = "";
+  const linhas = [];
+  const meus = await chamarApi("GET", "/api/atividades/minhas?aba=todas&por_pagina=50");
+  if (meus.status === 200 && meus.dados && meus.dados.itens) {
+    for (const item of meus.dados.itens) {
+      if (!IDS.atividade) IDS.atividade = item.id;
+      linhas.push(["atividade", item.id, item.titulo, `projeto ${item.projeto.id} · ${item.tipo} · ${item.status_exibicao.rotulo}`]);
+    }
+  }
+  const projetos = await chamarApi("GET", "/api/projetos?por_pagina=50");
+  if (projetos.status === 200 && projetos.dados && projetos.dados.itens) {
+    for (const item of projetos.dados.itens) {
+      if (!IDS.projeto) IDS.projeto = item.id;
+      linhas.push(["projeto", item.id, item.nome, `${item.progresso}% · ${item.total_atividades} atividades · status ${item.status.codigo}`]);
+    }
+  }
+  for (const [tipo, id, nome, detalhe] of linhas) {
+    const linha = document.createElement("tr");
+    linha.innerHTML = `<td>${tipo}</td><td class="caminho">${id}</td><td>${nome}</td><td class="nota">${detalhe}</td>`;
+    corpo.appendChild(linha);
+  }
+}
+
+document.getElementById("form-login").onsubmit = async (evento) => {
+  evento.preventDefault();
+  const corpo = {
+    email: document.getElementById("login-email").value.trim(),
+    senha: document.getElementById("login-senha").value,
+  };
+  const { status, texto } = await chamarApi("POST", "/api/auth/login", JSON.stringify(corpo));
+  document.getElementById("resposta").textContent = texto;
+  document.getElementById("status").textContent = String(status);
+  await Promise.all([atualizarSessao(), carregarIds()]);
+};
+
+document.getElementById("form-req").onsubmit = (evento) => {
+  evento.preventDefault();
+  const metodo = document.getElementById("metodo").value;
+  const caminho = resolverIds(document.getElementById("caminho").value.trim());
+  const corpo = document.getElementById("corpo").value.trim();
+  enviar(metodo, caminho, corpo || null);
+};
+
+document.getElementById("btn-sobre").onclick = () => { atualizarSessao(); carregarIds(); };
+document.getElementById("btn-sair").onclick = () => enviar("POST", "/api/auth/logout", "{}");
+
+montarRotas();
+atualizarSessao();
+carregarIds();
+</script>
+</body>
+</html>
