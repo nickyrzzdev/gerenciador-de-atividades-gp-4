@@ -421,4 +421,3 @@ O objetivo é disponibilizar uma aplicação simples e organizada para que usuá
 * Hanna Barroncas (Back-End)
 * Joao Miguel (Back-End)
 * Joao Vitor (Back-End)
-lallalal
