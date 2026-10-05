@@ -122,3 +122,4 @@ A documentação completa (personas, benchmarking, requisitos, diagramas de caso
 - João Vitor (Front-End)
 
 Disciplina: Fundamentos de Sistemas de Informação (FSI) · UEA.
+# ajuri
